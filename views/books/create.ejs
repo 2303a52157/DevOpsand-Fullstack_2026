@@ -1,0 +1,122 @@
+<%- include('../partials/head') %>
+<div class="app-wrapper">
+  <%- include('../partials/sidebar') %>
+  <div class="main-content">
+    <%- include('../partials/topbar') %>
+    <div class="page-body">
+      <%- include('../partials/flash') %>
+
+      <div class="page-header">
+        <div>
+          <h1>Add a Book</h1>
+          <p>Add a new book to your personal library</p>
+        </div>
+        <a href="/books" class="topbar-btn btn-ghost">← Back</a>
+      </div>
+
+      <form method="POST" action="/books/create" enctype="multipart/form-data">
+        <div style="display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:start;">
+
+          <!-- Cover Upload -->
+          <div>
+            <div class="card" style="text-align:center;">
+              <label style="text-transform:none;font-family:'Crimson Pro',serif;font-size:0.95rem;cursor:pointer;display:block;" for="coverImageInput">
+                <div id="coverPlaceholder" style="width:100%;aspect-ratio:2/3;background:var(--bg-hover);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:4rem;color:var(--border-light);margin-bottom:12px;">📖</div>
+                <img id="coverPreview" style="display:none;width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:4px;margin-bottom:12px;" />
+                <span style="color:var(--accent);font-size:0.88rem;">Click to upload cover</span>
+              </label>
+              <input type="file" id="coverImageInput" name="coverImage" accept="image/*" style="display:none;" onchange="previewCover(this)" />
+              <div class="form-hint">JPG, PNG, WEBP • Max 5MB</div>
+            </div>
+          </div>
+
+          <!-- Fields -->
+          <div>
+            <div class="card">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="title">Title *</label>
+                  <input type="text" id="title" name="title" placeholder="The Great Gatsby" required />
+                </div>
+                <div class="form-group">
+                  <label for="author">Author *</label>
+                  <input type="text" id="author" name="author" placeholder="F. Scott Fitzgerald" required />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="genre">Genre *</label>
+                  <select id="genre" name="genre" required>
+                    <option value="">Select genre…</option>
+                    <% genres.forEach(g => { %><option value="<%= g %>"><%= g %></option><% }) %>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="status">Reading Status</label>
+                  <select id="status" name="status">
+                    <option value="want-to-read">Want to Read</option>
+                    <option value="currently-reading">Currently Reading</option>
+                    <option value="completed">Completed</option>
+                    <option value="dropped">Dropped</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row-3">
+                <div class="form-group">
+                  <label for="isbn">ISBN</label>
+                  <input type="text" id="isbn" name="isbn" placeholder="978-3-16-148410-0" />
+                </div>
+                <div class="form-group">
+                  <label for="publishedYear">Published Year</label>
+                  <input type="number" id="publishedYear" name="publishedYear" placeholder="1925" min="1000" max="<%= new Date().getFullYear() + 1 %>" />
+                </div>
+                <div class="form-group">
+                  <label for="pages">Pages</label>
+                  <input type="number" id="pages" name="pages" placeholder="180" min="1" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="startDate">Start Date</label>
+                  <input type="date" id="startDate" name="startDate" />
+                </div>
+                <div class="form-group">
+                  <label for="finishDate">Finish Date</label>
+                  <input type="date" id="finishDate" name="finishDate" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="description">Description / Notes</label>
+                <textarea id="description" name="description" placeholder="A brief description or personal notes about this book…" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="tags">Tags</label>
+                <input type="text" id="tags" name="tags" placeholder="classic, must-read, favourite (comma separated)" />
+              </div>
+
+              <div style="display:flex;gap:12px;margin-top:8px;">
+                <button type="submit" class="topbar-btn btn-primary" style="padding:11px 28px;">Save Book</button>
+                <a href="/books" class="topbar-btn btn-ghost" style="padding:11px 20px;">Cancel</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+function previewCover(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('coverPreview').src = e.target.result;
+    document.getElementById('coverPreview').style.display = 'block';
+    document.getElementById('coverPlaceholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+<%- include('../partials/scripts') %>

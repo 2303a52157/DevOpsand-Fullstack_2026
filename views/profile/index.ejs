@@ -1,0 +1,153 @@
+<%- include('../partials/head') %>
+<div class="app-wrapper">
+  <%- include('../partials/sidebar') %>
+  <div class="main-content">
+    <%- include('../partials/topbar') %>
+    <div class="page-body">
+      <%- include('../partials/flash') %>
+
+      <div class="page-header">
+        <div>
+          <h1>My Profile</h1>
+          <p>Manage your account settings</p>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+
+        <!-- Left: Avatar + Stats -->
+        <div>
+          <div class="card" style="text-align:center;margin-bottom:20px;">
+            <div class="avatar-upload-wrapper" style="margin-bottom:16px;">
+              <% if (user.avatar) { %>
+                <img id="avatarPreview" src="<%= user.avatar %>" alt="Avatar" />
+              <% } else { %>
+                <div class="avatar-placeholder" id="avatarPreview">👤</div>
+              <% } %>
+            </div>
+            <h2 style="font-size:1.3rem;"><%= user.name %></h2>
+            <p class="text-muted" style="font-size:0.88rem;margin-top:4px;"><%= user.email %></p>
+            <span class="badge badge-<%= user.role %>" style="margin-top:10px;display:inline-flex;"><%= user.role %></span>
+            <% if (user.bio) { %>
+              <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:14px;font-style:italic;border-top:1px solid var(--border);padding-top:14px;">"<%= user.bio %>"</p>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="section-title">Reading Stats</div>
+            <ul class="meta-list">
+              <li><span class="meta-key">Total Books</span><span class="meta-val" style="color:var(--accent);font-size:1.2rem;font-weight:600;"><%= stats.total %></span></li>
+              <li><span class="meta-key">Completed</span><span class="meta-val"><%= stats.completed %></span></li>
+              <li><span class="meta-key">Reading Now</span><span class="meta-val"><%= stats.reading %></span></li>
+              <li><span class="meta-key">Want to Read</span><span class="meta-val"><%= stats.wantToRead %></span></li>
+              <li><span class="meta-key">Member Since</span><span class="meta-val mono" style="font-size:0.8rem;"><%= new Date(user.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) %></span></li>
+              <li><span class="meta-key">Last Login</span><span class="meta-val mono" style="font-size:0.8rem;"><%= user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'N/A' %></span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right: Edit Forms -->
+        <div>
+
+          <!-- Edit Profile -->
+          <div class="card mb-24">
+            <div class="section-title">Edit Profile</div>
+            <form method="POST" action="/profile?_method=PUT" enctype="multipart/form-data">
+              <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+                <div class="avatar-upload-wrapper" style="width:70px;height:70px;flex-shrink:0;">
+                  <% if (user.avatar) { %>
+                    <img id="avatarPreview2" src="<%= user.avatar %>" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid var(--border-light);" />
+                  <% } else { %>
+                    <div id="avatarPreview2" style="width:70px;height:70px;border-radius:50%;background:var(--bg-hover);border:2px solid var(--border-light);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">👤</div>
+                  <% } %>
+                </div>
+                <div>
+                  <label for="avatarInput" style="cursor:pointer;color:var(--accent);font-size:0.9rem;font-family:'Crimson Pro',serif;text-transform:none;letter-spacing:0;">
+                    📷 Change profile picture
+                  </label>
+                  <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display:none;" onchange="previewAvatar(this)" />
+                  <div class="form-hint">JPG, PNG, WEBP · Max 2MB</div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" name="name" value="<%= user.name %>" required />
+                </div>
+                <div class="form-group">
+                  <label>Email Address</label>
+                  <input type="email" name="email" value="<%= user.email %>" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Bio</label>
+                <textarea name="bio" rows="3" maxlength="300" placeholder="A short bio about yourself…"><%= user.bio || '' %></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Annual Reading Goal</label>
+                  <input type="number" name="readingGoal" value="<%= user.readingGoal || 12 %>" min="1" max="500" />
+                  <div class="form-hint">Books you aim to read this year</div>
+                </div>
+                <div class="form-group">
+                  <label>Favorite Genres</label>
+                  <input type="text" name="favoriteGenres" value="<%= (user.favoriteGenres || []).join(', ') %>" placeholder="Fiction, Mystery, Sci-Fi (comma separated)" />
+                </div>
+              </div>
+              <button type="submit" class="topbar-btn btn-primary" style="padding:11px 28px;">Save Changes</button>
+            </form>
+          </div>
+
+          <!-- Change Password -->
+          <div class="card">
+            <div class="section-title">Change Password</div>
+            <form method="POST" action="/profile/password?_method=PUT">
+              <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" name="currentPassword" placeholder="••••••••" required />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>New Password</label>
+                  <input type="password" name="newPassword" placeholder="Min. 6 characters" required />
+                </div>
+                <div class="form-group">
+                  <label>Confirm New Password</label>
+                  <input type="password" name="confirmPassword" placeholder="Repeat new password" required />
+                </div>
+              </div>
+              <button type="submit" class="topbar-btn btn-primary" style="padding:11px 28px;">Update Password</button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+function previewAvatar(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    ['avatarPreview','avatarPreview2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.tagName === 'IMG') {
+        el.src = e.target.result;
+      } else {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = el.style.cssText;
+        img.id = el.id;
+        el.replaceWith(img);
+      }
+    });
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+<%- include('../partials/scripts') %>

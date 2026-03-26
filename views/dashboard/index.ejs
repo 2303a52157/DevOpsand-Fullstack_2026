@@ -1,0 +1,188 @@
+<%- include('../partials/head') %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<div class="app-wrapper">
+  <%- include('../partials/sidebar') %>
+  <div class="main-content">
+    <%- include('../partials/topbar') %>
+    <div class="page-body">
+      <%- include('../partials/flash') %>
+
+      <div class="page-header">
+        <div>
+          <h1>Good reading, <%= sessionUser.name.split(' ')[0] %></h1>
+          <p>Here's your reading overview</p>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Books</div>
+          <div class="stat-value"><%= totalBooks %></div>
+          <div class="stat-sub">in your library</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value"><%= completedBooks %></div>
+          <div class="stat-sub">books finished</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Reading Now</div>
+          <div class="stat-value"><%= currentlyReading %></div>
+          <div class="stat-sub">in progress</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Want to Read</div>
+          <div class="stat-value"><%= wantToRead %></div>
+          <div class="stat-sub">on your list</div>
+        </div>
+        <% if (isAdmin) { %>
+        <div class="stat-card">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value"><%= totalUsers %></div>
+          <div class="stat-sub">registered members</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Book Clubs</div>
+          <div class="stat-value"><%= totalClubs %></div>
+          <div class="stat-sub">active clubs</div>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Reading Goal Progress -->
+      <div class="card mb-24">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <div class="section-title" style="margin-bottom:0;border:none;padding:0;font-size:1rem;">📎 Annual Reading Goal</div>
+            <div class="text-muted text-sm mt-4"><%= completedBooks %> of <%= readingGoal %> books completed this year</div>
+          </div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--accent);"><%= readingProgress %>%</div>
+        </div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner" style="width:<%= readingProgress %>%;"></div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">📊 Books Completed per Month</div>
+          <canvas id="barChart" height="180"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">🎭 Library by Genre</div>
+          <canvas id="pieChart" height="180"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Books -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div class="section-title" style="margin-bottom:0;border:none;padding:0;">Recently Added</div>
+          <a href="/books" class="topbar-btn btn-ghost" style="padding:6px 14px;font-size:0.85rem;">View All</a>
+        </div>
+        <% if (recentBooks.length > 0) { %>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Status</th>
+                <th>Added</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recentBooks.forEach(book => { %>
+              <tr onclick="window.location='/books/<%= book._id %>'" style="cursor:pointer;">
+                <td class="strong"><%= book.title %></td>
+                <td class="italic"><%= book.author %></td>
+                <td><span class="tag"><%= book.genre %></span></td>
+                <td>
+                  <% const sc = {completed:'badge-completed','currently-reading':'badge-reading','want-to-read':'badge-want',dropped:'badge-dropped'}; %>
+                  <span class="badge <%= sc[book.status] || 'badge-want' %>"><%= book.status %></span>
+                </td>
+                <td class="mono text-sm"><%= new Date(book.createdAt).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) %></td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <% } else { %>
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>No books yet</h3>
+            <p><a href="/books/create">Add your first book</a> to get started.</p>
+          </div>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const chartDefaults = {
+  font: { family: "'Crimson Pro', serif" },
+  color: '#b0a898'
+};
+Chart.defaults.color = chartDefaults.color;
+Chart.defaults.font  = chartDefaults.font;
+
+// Bar Chart
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: <%- monthlyLabels %>,
+    datasets: [{
+      label: 'Books Completed',
+      data: <%- monthlyCounts %>,
+      backgroundColor: 'rgba(200,169,110,0.25)',
+      borderColor: 'rgba(200,169,110,0.8)',
+      borderWidth: 1,
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(58,53,48,0.6)' }, ticks: { font: chartDefaults.font } },
+      y: { beginAtZero: true, grid: { color: 'rgba(58,53,48,0.6)' }, ticks: { stepSize: 1, font: chartDefaults.font } }
+    }
+  }
+});
+
+// Pie Chart
+const genreLabels = <%- genreLabels %>;
+const genreCounts = <%- genreCounts %>;
+const palette = ['#c8a96e','#8a6e4a','#5a8a5a','#4a7a9a','#8a5a8a','#9a8a5a','#5a6a8a','#c8785a','#7a9a5a','#5a8a8a','#9a5a6a','#8a9a6a','#6a5a9a'];
+
+if (genreLabels.length > 0) {
+  new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: genreLabels,
+      datasets: [{
+        data: genreCounts,
+        backgroundColor: palette.slice(0, genreLabels.length),
+        borderColor: '#1a1815',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 12, font: chartDefaults.font, color: '#b0a898' } }
+      }
+    }
+  });
+} else {
+  document.getElementById('pieChart').parentElement.innerHTML +=
+    '<p class="text-muted text-sm text-center mt-16">Add books to see genre breakdown</p>';
+}
+</script>
+
+<%- include('../partials/scripts') %>

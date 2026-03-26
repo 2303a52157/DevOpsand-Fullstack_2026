@@ -1,0 +1,83 @@
+<%- include('../partials/head') %>
+<div class="app-wrapper">
+  <%- include('../partials/sidebar') %>
+  <div class="main-content">
+    <%- include('../partials/topbar') %>
+    <div class="page-body">
+      <%- include('../partials/flash') %>
+
+      <div class="page-header">
+        <div>
+          <h1>Manage Users</h1>
+          <p><%= users.length %> registered member<%= users.length !== 1 ? 's' : '' %></p>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="card card-sm mb-24" style="display:flex;gap:12px;align-items:center;">
+        <span style="color:var(--text-muted);">🔍</span>
+        <input type="text" id="tableSearch" placeholder="Search users by name or email…" style="border:none;background:transparent;color:var(--text-primary);font-size:1rem;outline:none;flex:1;" />
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Books</th>
+              <th>Last Login</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(user => { %>
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:var(--bg-hover);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                    <% if (user.avatar) { %>
+                      <img src="<%= user.avatar %>" style="width:100%;height:100%;object-fit:cover;" />
+                    <% } else { %>
+                      👤
+                    <% } %>
+                  </div>
+                  <span class="strong"><%= user.name %></span>
+                </div>
+              </td>
+              <td class="mono" style="font-size:0.82rem;"><%= user.email %></td>
+              <td><span class="badge badge-<%= user.role %>"><%= user.role %></span></td>
+              <td><span style="color:var(--accent);font-weight:600;"><%= user.bookCount %></span></td>
+              <td class="text-sm text-muted"><%= user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'Never' %></td>
+              <td class="text-sm text-muted mono"><%= new Date(user.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) %></td>
+              <td>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <!-- Change role -->
+                  <form method="POST" action="/users/<%= user._id %>/role?_method=PUT" style="display:inline;">
+                    <select name="role" onchange="this.form.submit()" style="background:var(--bg-hover);border:1px solid var(--border);border-radius:4px;color:var(--text-secondary);font-size:0.8rem;padding:4px 8px;cursor:pointer;">
+                      <option value="member" <%= user.role === 'member' ? 'selected' : '' %>>member</option>
+                      <option value="admin"  <%= user.role === 'admin'  ? 'selected' : '' %>>admin</option>
+                    </select>
+                  </form>
+                  <% if (user._id.toString() !== sessionUser.id) { %>
+                  <form id="deleteUser-<%= user._id %>" method="POST" action="/users/<%= user._id %>?_method=DELETE">
+                    <button type="button" class="topbar-btn btn-danger" style="padding:4px 10px;font-size:0.78rem;" onclick="openDeleteModal('deleteUser-<%= user._id %>')">Delete</button>
+                  </form>
+                  <% } else { %>
+                  <span class="text-muted text-sm">(you)</span>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+<%- include('../partials/delete-modal') %>
+<%- include('../partials/scripts') %>

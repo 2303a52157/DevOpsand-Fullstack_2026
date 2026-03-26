@@ -1,0 +1,70 @@
+<%- include('../partials/head') %>
+<div class="app-wrapper">
+  <%- include('../partials/sidebar') %>
+  <div class="main-content">
+    <%- include('../partials/topbar') %>
+    <div class="page-body">
+      <%- include('../partials/flash') %>
+
+      <div class="page-header">
+        <div>
+          <h1>Create a Book Club</h1>
+          <p>Start your own reading community</p>
+        </div>
+        <a href="/clubs" class="topbar-btn btn-ghost">← Back</a>
+      </div>
+
+      <div style="max-width:600px;">
+        <div class="card">
+          <form method="POST" action="/clubs/create">
+            <div class="form-group">
+              <label for="name">Club Name *</label>
+              <input type="text" id="name" name="name" placeholder="e.g. The Midnight Readers" required maxlength="100" />
+            </div>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" placeholder="What's this club about? What genres do you read?" rows="4" maxlength="500"></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="genre">Primary Genre</label>
+                <select id="genre" name="genre">
+                  <option value="Mixed">Mixed / All Genres</option>
+                  <option value="Fiction">Fiction</option>
+                  <option value="Non-Fiction">Non-Fiction</option>
+                  <option value="Mystery">Mystery</option>
+                  <option value="Science Fiction">Science Fiction</option>
+                  <option value="Fantasy">Fantasy</option>
+                  <option value="Romance">Romance</option>
+                  <option value="Thriller">Thriller</option>
+                  <option value="Biography">Biography</option>
+                  <option value="History">History</option>
+                  <option value="Self-Help">Self-Help</option>
+                  <option value="Science">Science</option>
+                  <option value="Poetry">Poetry</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Visibility</label>
+                <div class="toggle-wrapper" style="margin-top:10px;">
+                  <label class="toggle" for="isPrivate">
+                    <input type="checkbox" id="isPrivate" name="isPrivate" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span style="color:var(--text-secondary);font-size:0.95rem;">Make this club private</span>
+                </div>
+                <div class="form-hint">Private clubs won't appear in the discover list.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:8px;">
+              <button type="submit" class="topbar-btn btn-primary" style="padding:11px 28px;">Create Club</button>
+              <a href="/clubs" class="topbar-btn btn-ghost" style="padding:11px 20px;">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<%- include('../partials/scripts') %>

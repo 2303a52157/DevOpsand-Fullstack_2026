@@ -1,0 +1,116 @@
+<%- include('../partials/head') %>
+<div class="app-wrapper">
+  <%- include('../partials/sidebar') %>
+  <div class="main-content">
+    <%- include('../partials/topbar') %>
+    <div class="page-body">
+      <%- include('../partials/flash') %>
+
+      <div class="page-header">
+        <a href="/books" class="topbar-btn btn-ghost">← Library</a>
+        <div style="display:flex;gap:10px;">
+          <a href="/books/<%= book._id %>/edit" class="topbar-btn btn-ghost">✏️ Edit</a>
+          <form id="deleteBookForm" method="POST" action="/books/<%= book._id %>?_method=DELETE">
+            <button type="button" class="topbar-btn btn-danger" onclick="openDeleteModal('deleteBookForm')">🗑 Delete</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="book-detail-grid">
+        <!-- Cover -->
+        <div>
+          <% if (book.coverImage) { %>
+            <img src="<%= book.coverImage %>" alt="<%= book.title %>" class="book-detail-cover" />
+          <% } else { %>
+            <div class="book-detail-cover-placeholder">📖</div>
+          <% } %>
+
+          <!-- Meta -->
+          <div class="card" style="margin-top:20px;">
+            <ul class="meta-list">
+              <li>
+                <span class="meta-key">Status</span>
+                <% const sc = {completed:'badge-completed','currently-reading':'badge-reading','want-to-read':'badge-want',dropped:'badge-dropped'}; %>
+                <span class="badge <%= sc[book.status] || 'badge-want' %>"><%= book.status %></span>
+              </li>
+              <% if (book.publishedYear) { %><li><span class="meta-key">Published</span><span class="meta-val"><%= book.publishedYear %></span></li><% } %>
+              <% if (book.pages) { %><li><span class="meta-key">Pages</span><span class="meta-val"><%= book.pages %></span></li><% } %>
+              <% if (book.isbn) { %><li><span class="meta-key">ISBN</span><span class="meta-val mono" style="font-size:0.8rem;"><%= book.isbn %></span></li><% } %>
+              <% if (book.startDate) { %><li><span class="meta-key">Started</span><span class="meta-val"><%= new Date(book.startDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) %></span></li><% } %>
+              <% if (book.finishDate) { %><li><span class="meta-key">Finished</span><span class="meta-val"><%= new Date(book.finishDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) %></span></li><% } %>
+              <li><span class="meta-key">Avg Rating</span><span class="meta-val" data-stars="<%= Math.round(avgRating) %>"><%= avgRating > 0 ? avgRating + ' / 5' : 'No ratings' %></span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div>
+          <div style="margin-bottom:6px;">
+            <span class="tag"><%= book.genre %></span>
+          </div>
+          <h1 style="font-size:2.2rem;margin-top:8px;"><%= book.title %></h1>
+          <p style="font-size:1.1rem;color:var(--text-muted);font-style:italic;margin-top:6px;">by <%= book.author %></p>
+
+          <% if (book.description) { %>
+          <div class="card" style="margin-top:24px;">
+            <div class="section-title">Synopsis / Notes</div>
+            <p style="color:var(--text-secondary);line-height:1.8;"><%= book.description %></p>
+          </div>
+          <% } %>
+
+          <% if (book.tags && book.tags.length > 0) { %>
+          <div style="margin-top:20px;">
+            <div class="section-title">Tags</div>
+            <div class="tags">
+              <% book.tags.forEach(tag => { %><span class="tag"><%= tag %></span><% }) %>
+            </div>
+          </div>
+          <% } %>
+
+          <!-- Reviews -->
+          <div class="card" style="margin-top:24px;">
+            <div class="section-title">Your Review</div>
+            <form method="POST" action="/books/<%= book._id %>/review">
+              <div class="form-group">
+                <label>Rating</label>
+                <div id="starPicker" style="font-size:1.8rem;cursor:pointer;letter-spacing:4px;">
+                  <% for(let i=1;i<=5;i++) { %>
+                  <button type="button" class="star-btn" data-value="<%= i %>" style="background:none;border:none;cursor:pointer;color:var(--border-light);font-size:1.6rem;padding:0;">☆</button>
+                  <% } %>
+                </div>
+                <input type="hidden" id="ratingInput" name="rating" value="0" required />
+              </div>
+              <div class="form-group">
+                <label>Comment</label>
+                <textarea name="comment" placeholder="What did you think of this book?" rows="3"></textarea>
+              </div>
+              <button type="submit" class="topbar-btn btn-primary">Save Review</button>
+            </form>
+
+            <% if (book.reviews && book.reviews.length > 0) { %>
+            <div style="margin-top:24px;">
+              <div class="section-title">All Reviews (<%= book.reviews.length %>)</div>
+              <% book.reviews.forEach(review => { %>
+              <div style="padding:14px 0;border-bottom:1px solid var(--border);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <span style="font-weight:500;color:var(--text-primary);"><%= review.user ? review.user.name : 'Anonymous' %></span>
+                  <span style="font-size:1.1rem;letter-spacing:2px;">
+                    <% for(let i=1;i<=5;i++) { %><span style="color:<%= i<=review.rating ? 'var(--accent)' : 'var(--border-light)' %>">★</span><% } %>
+                  </span>
+                </div>
+                <% if (review.comment) { %><p style="color:var(--text-secondary);font-size:0.95rem;"><%= review.comment %></p><% } %>
+                <div class="text-muted text-sm mono mt-4"><%= new Date(review.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) %></div>
+              </div>
+              <% }) %>
+            </div>
+            <% } %>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<%- include('../partials/delete-modal') %>
+<%- include('../partials/scripts') %>

@@ -1,0 +1,57 @@
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">📚</div>
+    <h2>BookClub</h2>
+    <span>Reading Tracker</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="/dashboard" class="nav-item">
+      <span class="icon">🏠</span> Dashboard
+    </a>
+    <a href="/books" class="nav-item">
+      <span class="icon">📖</span> My Library
+    </a>
+    <a href="/books/create" class="nav-item">
+      <span class="icon">➕</span> Add Book
+    </a>
+
+    <div class="nav-section-label" style="margin-top:12px;">Community</div>
+    <a href="/clubs" class="nav-item">
+      <span class="icon">👥</span> Book Clubs
+    </a>
+
+    <% if (isAdmin) { %>
+    <div class="nav-section-label" style="margin-top:12px;">Admin</div>
+    <a href="/users" class="nav-item">
+      <span class="icon">🛡️</span> Manage Users
+    </a>
+    <% } %>
+
+    <div class="nav-section-label" style="margin-top:12px;">Account</div>
+    <a href="/profile" class="nav-item">
+      <span class="icon">👤</span> Profile
+    </a>
+    <a href="/auth/logout" class="nav-item">
+      <span class="icon">🚪</span> Logout
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">
+        <% if (sessionUser.avatar) { %>
+          <img src="<%= sessionUser.avatar %>" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+        <% } else { %>
+          👤
+        <% } %>
+      </div>
+      <div class="sidebar-user-info">
+        <div class="name"><%= sessionUser.name %></div>
+        <div class="role"><%= sessionUser.role %></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="sidebarOverlay" style="z-index:99;"></div>

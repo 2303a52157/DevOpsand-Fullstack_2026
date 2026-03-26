@@ -1,0 +1,81 @@
+<%- include('../partials/head') %>
+<div class="app-wrapper">
+  <%- include('../partials/sidebar') %>
+  <div class="main-content">
+    <%- include('../partials/topbar') %>
+    <div class="page-body">
+      <%- include('../partials/flash') %>
+
+      <div class="page-header">
+        <div>
+          <h1>Book Clubs</h1>
+          <p>Join a community or start your own</p>
+        </div>
+        <a href="/clubs/create" class="topbar-btn btn-primary">+ Create Club</a>
+      </div>
+
+      <!-- My Clubs -->
+      <div class="section-title">My Clubs (<%= myClubs.length %>)</div>
+      <% if (myClubs.length > 0) { %>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-bottom:32px;">
+        <% myClubs.forEach(club => { %>
+        <a href="/clubs/<%= club._id %>" style="text-decoration:none;">
+          <div class="card" style="height:100%;transition:border-color 0.2s,transform 0.2s;" onmouseenter="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseleave="this.style.borderColor='var(--border)';this.style.transform=''">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+              <h3 style="font-size:1.1rem;color:var(--text-primary);"><%= club.name %></h3>
+              <% if (club.isPrivate) { %><span class="badge badge-dropped" style="font-size:0.65rem;">🔒 Private</span><% } else { %><span class="badge badge-want" style="font-size:0.65rem;">🌐 Public</span><% } %>
+            </div>
+            <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:12px;min-height:40px;"><%= club.description || 'No description.' %></p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="text-muted text-sm">👥 <%= club.members ? club.members.length : 0 %> members</span>
+              <span class="tag"><%= club.genre %></span>
+            </div>
+            <% if (club.currentBook) { %>
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:0.85rem;color:var(--text-muted);">
+              📖 Currently reading: <span style="color:var(--text-secondary);font-style:italic;"><%= club.currentBook.title %></span>
+            </div>
+            <% } %>
+          </div>
+        </a>
+        <% }) %>
+      </div>
+      <% } else { %>
+      <div class="empty-state" style="padding:32px 20px;margin-bottom:32px;">
+        <div class="empty-icon">👥</div>
+        <h3>No clubs yet</h3>
+        <p>Create one or join a public club below.</p>
+      </div>
+      <% } %>
+
+      <!-- Public Clubs -->
+      <div class="section-title">Discover Public Clubs (<%= publicClubs.length %>)</div>
+      <% if (publicClubs.length > 0) { %>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;">
+        <% publicClubs.forEach(club => { %>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <h3 style="font-size:1.05rem;color:var(--text-primary);"><%= club.name %></h3>
+            <span class="tag"><%= club.genre %></span>
+          </div>
+          <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:14px;min-height:36px;"><%= club.description || 'No description.' %></p>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="text-muted text-sm">👥 <%= club.members ? club.members.length : 0 %> members · by <%= club.createdBy ? club.createdBy.name : 'Unknown' %></span>
+            <form method="POST" action="/clubs/<%= club._id %>/join">
+              <button type="submit" class="topbar-btn btn-primary" style="padding:6px 14px;font-size:0.82rem;">Join</button>
+            </form>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+      <% } else { %>
+      <div class="empty-state" style="padding:32px 20px;">
+        <div class="empty-icon">🔍</div>
+        <h3>No public clubs available</h3>
+        <p>Be the first to <a href="/clubs/create">create one</a>!</p>
+      </div>
+      <% } %>
+
+    </div>
+  </div>
+</div>
+<%- include('../partials/scripts') %>

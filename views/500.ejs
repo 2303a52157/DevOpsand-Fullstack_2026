@@ -1,0 +1,12 @@
+<%- include('partials/head') %>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg-primary);">
+  <div style="text-align:center;padding:40px;">
+    <div style="font-size:5rem;margin-bottom:16px;">⚠️</div>
+    <h1 style="font-size:4rem;color:var(--red);font-family:'Playfair Display',serif;">500</h1>
+    <h2 style="font-size:1.4rem;color:var(--text-secondary);margin:12px 0;">Server Error</h2>
+    <p style="color:var(--text-muted);margin-bottom:8px;">Something went wrong on our end.</p>
+    <p style="color:var(--text-muted);font-size:0.85rem;font-family:'DM Mono',monospace;margin-bottom:28px;"><%= typeof message !== 'undefined' ? message : '' %></p>
+    <a href="/dashboard" class="topbar-btn btn-primary" style="padding:12px 28px;">← Back to Dashboard</a>
+  </div>
+</div>
+<%- include('partials/scripts') %>

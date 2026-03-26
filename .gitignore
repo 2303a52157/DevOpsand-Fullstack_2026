@@ -1,0 +1,8 @@
+node_modules/
+.env
+public/uploads/covers/*.jpg
+public/uploads/covers/*.png
+public/uploads/covers/*.jpeg
+public/uploads/covers/*.webp
+*.log
+.DS_Store
